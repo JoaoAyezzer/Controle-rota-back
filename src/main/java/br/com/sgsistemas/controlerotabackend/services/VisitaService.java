@@ -9,6 +9,9 @@ import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityEx
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -92,6 +95,7 @@ public class VisitaService {
         Visita visita = new Visita(visitaNewDTO.getTipoVisita(), cliente, veiculo, tecnico, dataInicial, null, veiculo.getKilometragem(), null );
         return visita;
     }
+
     //Metodo para finalizar visita
     public Visita finalizaVisita(FinalizarVisitaDTO finalizarVisitaDTO, Long id){
         Date dataFinal = new Date();
@@ -103,4 +107,10 @@ public class VisitaService {
         veiculo = veiculoService.updateVeiculo(veiculo);
         return visita;
     }
+    //Busca Paginada de Visitas
+    public Page<Visita> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        return visitaRepository.findAll(pageRequest);
+    }
+
 }

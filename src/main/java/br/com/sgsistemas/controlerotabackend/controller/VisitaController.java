@@ -5,6 +5,7 @@ import br.com.sgsistemas.controlerotabackend.dto.VisitaReadDTO;
 import br.com.sgsistemas.controlerotabackend.dto.VisitaNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Visita;
 import br.com.sgsistemas.controlerotabackend.services.VisitaService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -29,6 +30,16 @@ public class VisitaController {
                 .stream()
                 .map(VisitaReadDTO::new)
                 .collect( Collectors.toList() );
+        return ResponseEntity.ok().body(visitaReadDTOS);
+    }
+    @GetMapping(value = "/page")
+    public ResponseEntity<Page<VisitaReadDTO>> findPage(
+           @RequestParam(value = "page", defaultValue = "0") Integer page,
+           @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
+           @RequestParam(value = "orderBy", defaultValue = "dataInicial")  String orderBy,
+           @RequestParam(value = "direction", defaultValue = "ASC")  String direction){
+        Page<Visita> visitas = visitaService.findPage(page, lines, orderBy, direction);
+        Page<VisitaReadDTO> visitaReadDTOS = visitas.map(visita -> new VisitaReadDTO(visita));
         return ResponseEntity.ok().body(visitaReadDTOS);
     }
     @GetMapping(value = "/{id}")
