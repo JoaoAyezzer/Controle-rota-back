@@ -3,6 +3,7 @@ package br.com.sgsistemas.controlerotabackend.dto;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.services.VisitaService;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,7 +13,6 @@ public class TecnicoDTO implements Serializable {
     private Long id;
     private String nome;
     private String email;
-    private String senha;
     private Integer tipoTecnico;
     private List<String> telefones;
 
@@ -23,7 +23,6 @@ public class TecnicoDTO implements Serializable {
         this.id = tecnico.getId();
         this.nome = tecnico.getNome();
         this.email = tecnico.getEmail();
-        this.senha = tecnico.getSenha();
         this.tipoTecnico = (tecnico.getTipoTecnico() == null) ? null : tecnico.getTipoTecnico().getCod();
         this.telefones = tecnico.getTelefones();
     }
@@ -64,12 +63,5 @@ public class TecnicoDTO implements Serializable {
         this.telefones = telefones;
     }
 
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
 
 }

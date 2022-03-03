@@ -12,7 +12,6 @@ public class TecnicoDetailDTO implements Serializable {
     private Long id;
     private String nome;
     private String email;
-    private String senha;
     private Integer tipoTecnico;
     private List<String> telefones;
     private List<VisitaDTO> visitas;
@@ -24,7 +23,6 @@ public class TecnicoDetailDTO implements Serializable {
         this.id = tecnico.getId();
         this.nome = tecnico.getNome();
         this.email = tecnico.getEmail();
-        this.senha = tecnico.getSenha();
         this.tipoTecnico = (tecnico.getTipoTecnico() == null) ? null : tecnico.getTipoTecnico().getCod();
         this.telefones = tecnico.getTelefones();
         this.visitas = VisitaService.fromObject(tecnico.getVisitas());
@@ -74,12 +72,5 @@ public class TecnicoDetailDTO implements Serializable {
         this.telefones = telefones;
     }
 
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
 
 }
