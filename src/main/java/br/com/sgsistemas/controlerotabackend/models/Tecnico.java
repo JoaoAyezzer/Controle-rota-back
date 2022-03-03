@@ -1,12 +1,14 @@
 package br.com.sgsistemas.controlerotabackend.models;
 
+
 import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
+
+
 @Entity(name = "TECNICOS")
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = "email") })
 public class Tecnico implements Serializable {
@@ -19,7 +21,11 @@ public class Tecnico implements Serializable {
     @Column
     private String email;
     @Column
+    @JsonIgnore
     private String senha;
+//    @ElementCollection(fetch = FetchType.EAGER)
+//    @CollectionTable(name = "PERFIS_USUARIOS")
+//    private Set<Integer> perfis = new HashSet<>();
     @Column
     private Integer tipoTecnico;
     @ElementCollection
@@ -36,6 +42,7 @@ public class Tecnico implements Serializable {
     private List<Cliente> clientes = new ArrayList<>();
 
     public Tecnico() {
+//        addPerfil(PerfilUsuario.TECNICO);
     }
 
     public Tecnico(String nome, String email, String senha, TipoTecnico tipoTecnico) {
@@ -43,6 +50,7 @@ public class Tecnico implements Serializable {
         this.email = email;
         this.senha = senha;
         this.tipoTecnico = (tipoTecnico == null) ? null : tipoTecnico.getCod();
+//        addPerfil(PerfilUsuario.TECNICO);
     }
 
     public Long getId() {
@@ -77,14 +85,16 @@ public class Tecnico implements Serializable {
         this.senha = senha;
     }
 
-    public TipoTecnico getTipoTecnico() {
-        return TipoTecnico.toEnum(this.tipoTecnico);
-    }
+    public TipoTecnico getTipoTecnico() { return TipoTecnico.toEnum(this.tipoTecnico); }
 
-    public void setTipoTecnico(TipoTecnico tipoTecnico) {
-        this.tipoTecnico = tipoTecnico.getCod();
-    }
-
+    public void setTipoTecnico(TipoTecnico tipoTecnico) { this.tipoTecnico = tipoTecnico.getCod(); }
+//
+//    public Set<PerfilUsuario> getPerfis(){
+//        return perfis.stream().map(perfil -> PerfilUsuario.toEnum(perfil)).collect(Collectors.toSet());
+//    }
+//    public void addPerfil(PerfilUsuario perfilUsuario){
+//        perfis.add(perfilUsuario.getCod());
+//    }
     public List<String> getTelefones() {
         return telefones;
     }

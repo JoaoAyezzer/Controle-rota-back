@@ -1,5 +1,4 @@
 package br.com.sgsistemas.controlerotabackend.services;
-import br.com.sgsistemas.controlerotabackend.dto.TecnicoDTO;
 import br.com.sgsistemas.controlerotabackend.dto.TecnicoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.TecnicoRepository;
@@ -7,6 +6,7 @@ import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityEx
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -18,7 +18,10 @@ import java.util.Optional;
 public class TecnicoService {
 
     @Autowired
-    TecnicoRepository tecnicoRepository;
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TecnicoRepository tecnicoRepository;
 
     public List<Tecnico> getAll(){
         return tecnicoRepository.findAll();
@@ -68,7 +71,7 @@ public class TecnicoService {
 
     //Converte DTO em Objeto
     public Tecnico fromDTO(TecnicoNewDTO tecnicoNewDTO){
-        Tecnico tecnico = new Tecnico(tecnicoNewDTO.getNome(), tecnicoNewDTO.getEmail(), tecnicoNewDTO.getSenha(), tecnicoNewDTO.getTipoTecnico());
+        Tecnico tecnico = new Tecnico(tecnicoNewDTO.getNome(), tecnicoNewDTO.getEmail(), passwordEncoder.encode(tecnicoNewDTO.getSenha()), tecnicoNewDTO.getTipoTecnico());
         tecnico.getTelefones().add(tecnicoNewDTO.getTelefone1());
         tecnico.getTelefones().add(tecnicoNewDTO.getTelefone2());
         return tecnico;
