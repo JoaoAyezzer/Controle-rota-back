@@ -1,6 +1,7 @@
 package br.com.sgsistemas.controlerotabackend.config;
 
 import br.com.sgsistemas.controlerotabackend.security.JWTAuthenticationFilter;
+import br.com.sgsistemas.controlerotabackend.security.JWTAuthorizationFilter;
 import br.com.sgsistemas.controlerotabackend.security.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(PUBLIC_MATCHERS).permitAll()
                 .anyRequest().authenticated();
         http.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtUtil));
+        http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));
+
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
     @Override
