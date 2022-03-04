@@ -20,6 +20,7 @@ public class TecnicoNewDTO implements Serializable {
     private String senha;
     @NotNull(message = "Preenchimento Obrigatório!")
     private Integer tipoTecnico;
+    @NotNull(message = "preenchimento Obrigatório")
     private String telefone1;
     private String telefone2;
 

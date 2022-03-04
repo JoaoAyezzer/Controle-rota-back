@@ -3,16 +3,22 @@ import br.com.sgsistemas.controlerotabackend.dto.ManutencaoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Manutencao;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.models.Veiculo;
+import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.ManutencaoRepository;
+import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ManutencaoService {
@@ -29,6 +35,12 @@ public class ManutencaoService {
 
     //Listar todos as Manutençoes
     public List<Manutencao> getAll(){
+        UserSpringSecurity user = UserService.authenticated();
+        if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
+            return manutencaoRepository.findAll().stream()
+                    .filter( manutencao -> manutencao.getSolicitante().getId().equals(user.getId()))
+                    .collect(Collectors.toList());
+        }
         return manutencaoRepository.findAll();
     }
 
@@ -65,4 +77,8 @@ public class ManutencaoService {
         return new Manutencao(manutencaoNewDTO.getDescricao(),data, solicitane, veiculo.getKilometragem(), veiculo, manutencaoNewDTO.getValor());
     }
 
+    public Page<Manutencao> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        return manutencaoRepository.findAll(pageRequest);
+    }
 }

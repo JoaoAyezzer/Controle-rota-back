@@ -1,16 +1,13 @@
 package br.com.sgsistemas.controlerotabackend.models.enums;
 
-public enum TipoTecnico {
-    TECNICO_ROTA(1, "ROLE_TECNICO_ROTA"),
-    TECNICO_IMPLANTACAO(2, "ROLE_TECNICO_IMPLANTACAO"),
-    TECNICO_SUPORTE(3, "ROLE_TECNICO_SUPORTE"),
-    SUPERVISOR(4, "ROLE_ADMIN"),
-    GERENTE(5, "ROLE_ADMIN");
+public enum PerfilUsuario {
+    ADMIN(1, "ROLE_ADMIN"),
+    TECNICO(2, "ROLE_TECNICO");
 
     private int cod;
     private String descricao;
 
-    TipoTecnico(int cod, String descricao) {
+    PerfilUsuario(int cod, String descricao) {
         this.cod = cod;
         this.descricao = descricao;
     }
@@ -23,11 +20,11 @@ public enum TipoTecnico {
         return descricao;
     }
 
-    public static TipoTecnico toEnum(Integer cod){
+    public static PerfilUsuario toEnum(Integer cod){
         if(cod == null){
             return null;
         }
-        for (TipoTecnico x : TipoTecnico.values()){
+        for (PerfilUsuario x : PerfilUsuario.values()){
             if(cod.equals(x.getCod())){
                 return x;
             }
@@ -35,3 +32,4 @@ public enum TipoTecnico {
         throw new IllegalArgumentException("Id Invalido para o codigo: " + cod);
     }
 }
+

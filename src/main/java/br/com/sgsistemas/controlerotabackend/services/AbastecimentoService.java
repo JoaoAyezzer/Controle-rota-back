@@ -4,17 +4,24 @@ import br.com.sgsistemas.controlerotabackend.dto.AbastecimentoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Abastecimento;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.models.Veiculo;
+import br.com.sgsistemas.controlerotabackend.models.Visita;
+import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.AbastecimentoRepository;
+import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AbastecimentoService {
@@ -34,6 +41,13 @@ public class AbastecimentoService {
 
     //Listar todos os Abastecimentos
     public List<Abastecimento> getAll(){
+        UserSpringSecurity user = UserService.authenticated();
+
+        if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
+            return abastecimentoRepository.findAll().stream()
+                    .filter( abastecimento -> abastecimento.getTecnico().getId().equals(user.getId()))
+                    .collect(Collectors.toList());
+        }
         return abastecimentoRepository.findAll();
     }
 
@@ -68,5 +82,10 @@ public class AbastecimentoService {
         Tecnico tecnico = tecnicoService.getById(abastecimentoNewDTO.getTecnico_id());
         Veiculo veiculo = veiculoService.getById(abastecimentoNewDTO.getVeiculo_id());
         return new Abastecimento(veiculo, abastecimentoNewDTO.getLitros(), veiculo.getKilometragem(), data, tecnico, abastecimentoNewDTO.getValor());
+    }
+
+    public Page<Abastecimento> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        return abastecimentoRepository.findAll(pageRequest);
     }
 }

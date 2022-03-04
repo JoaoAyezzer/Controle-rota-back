@@ -6,7 +6,9 @@ import br.com.sgsistemas.controlerotabackend.dto.VisitaNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Visita;
 import br.com.sgsistemas.controlerotabackend.services.VisitaService;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/visitas")
+@RequestMapping(value = "/visitas", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class VisitaController {
 
     private final VisitaService visitaService;
@@ -36,7 +38,7 @@ public class VisitaController {
     public ResponseEntity<Page<VisitaReadDTO>> findPage(
            @RequestParam(value = "page", defaultValue = "0") Integer page,
            @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
-           @RequestParam(value = "orderBy", defaultValue = "dataInicial")  String orderBy,
+           @RequestParam(value = "orderBy", defaultValue = "id")  String orderBy,
            @RequestParam(value = "direction", defaultValue = "ASC")  String direction){
         Page<Visita> visitas = visitaService.findPage(page, lines, orderBy, direction);
         Page<VisitaReadDTO> visitaReadDTOS = visitas.map(visita -> new VisitaReadDTO(visita));
@@ -57,6 +59,7 @@ public class VisitaController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Void> updateVisita(@RequestBody VisitaNewDTO visitaNewDTO, @PathVariable Long id){
         Visita visita = visitaService.fromDTO(visitaNewDTO);
@@ -70,6 +73,7 @@ public class VisitaController {
         visita = visitaService.updateVisita(visita);
         return ResponseEntity.noContent().build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/{id}" )
     public  ResponseEntity<Void> deleteManutencao(@PathVariable Long id){
         visitaService.deleteVisita(id);
