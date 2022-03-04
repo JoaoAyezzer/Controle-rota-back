@@ -11,6 +11,9 @@ import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityEx
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -83,5 +86,10 @@ public class ClienteService {
         cliente.getTelefones().add(clienteNewDTO.getTelefone1());
         cliente.getTelefones().add(clienteNewDTO.getTelefone2());
         return cliente;
+    }
+
+    public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        return clienteRepository.findAll(pageRequest);
     }
 }

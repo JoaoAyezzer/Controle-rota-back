@@ -9,6 +9,9 @@ import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityEx
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -81,5 +84,10 @@ public class TecnicoService {
         tecnico.getTelefones().add(tecnicoNewDTO.getTelefone1());
         tecnico.getTelefones().add(tecnicoNewDTO.getTelefone2());
         return tecnico;
+    }
+
+    public Page<Tecnico> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        return tecnicoRepository.findAll(pageRequest);
     }
 }

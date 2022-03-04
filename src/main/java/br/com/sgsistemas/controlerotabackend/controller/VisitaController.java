@@ -38,7 +38,7 @@ public class VisitaController {
     public ResponseEntity<Page<VisitaReadDTO>> findPage(
            @RequestParam(value = "page", defaultValue = "0") Integer page,
            @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
-           @RequestParam(value = "orderBy", defaultValue = "dataInicial")  String orderBy,
+           @RequestParam(value = "orderBy", defaultValue = "id")  String orderBy,
            @RequestParam(value = "direction", defaultValue = "ASC")  String direction){
         Page<Visita> visitas = visitaService.findPage(page, lines, orderBy, direction);
         Page<VisitaReadDTO> visitaReadDTOS = visitas.map(visita -> new VisitaReadDTO(visita));

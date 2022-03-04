@@ -1,8 +1,11 @@
 package br.com.sgsistemas.controlerotabackend.controller;
+import br.com.sgsistemas.controlerotabackend.dto.LimpezaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.ManutencaoDTO;
 import br.com.sgsistemas.controlerotabackend.dto.ManutencaoNewDTO;
+import br.com.sgsistemas.controlerotabackend.models.Limpeza;
 import br.com.sgsistemas.controlerotabackend.models.Manutencao;
 import br.com.sgsistemas.controlerotabackend.services.ManutencaoService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +37,16 @@ public class ManutencaoController {
     public ResponseEntity<ManutencaoDTO> getManutencaoById(@PathVariable Long id){
         ManutencaoDTO manutencaoDTO = new ManutencaoDTO(manutencaoService.getById(id));
         return ResponseEntity.ok().body(manutencaoDTO);
+    }
+    @GetMapping(value = "/page")
+    public ResponseEntity<Page<ManutencaoDTO>> findPage(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
+            @RequestParam(value = "orderBy", defaultValue = "id")  String orderBy,
+            @RequestParam(value = "direction", defaultValue = "DESC")  String direction){
+        Page<Manutencao> manutencaos = manutencaoService.findPage(page, lines, orderBy, direction);
+        Page<ManutencaoDTO> manutencaoDTOS = manutencaos.map(manutencao -> new ManutencaoDTO(manutencao));
+        return ResponseEntity.ok().body(manutencaoDTOS);
     }
     @PostMapping
     public ResponseEntity<Void> insert(@RequestBody ManutencaoNewDTO manutencaoDTO){

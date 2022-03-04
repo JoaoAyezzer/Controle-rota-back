@@ -1,9 +1,12 @@
 package br.com.sgsistemas.controlerotabackend.controller;
 
+import br.com.sgsistemas.controlerotabackend.dto.ClienteDTO;
 import br.com.sgsistemas.controlerotabackend.dto.DespesaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.DespesaReadDTO;
+import br.com.sgsistemas.controlerotabackend.models.Cliente;
 import br.com.sgsistemas.controlerotabackend.models.Despesa;
 import br.com.sgsistemas.controlerotabackend.services.DespesaService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +33,16 @@ public class DespesaController {
                 .stream()
                 .map(DespesaDTO::new)
                 .collect( Collectors.toList() );
+        return ResponseEntity.ok().body(despesaDTOS);
+    }
+    @GetMapping(value = "/page")
+    public ResponseEntity<Page<DespesaDTO>> findPage(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
+            @RequestParam(value = "orderBy", defaultValue = "id")  String orderBy,
+            @RequestParam(value = "direction", defaultValue = "ASC")  String direction){
+        Page<Despesa> despesas = despesaService.findPage(page, lines, orderBy, direction);
+        Page<DespesaDTO> despesaDTOS = despesas.map(despesa -> new DespesaDTO(despesa));
         return ResponseEntity.ok().body(despesaDTOS);
     }
     @GetMapping(value = "/{id}")

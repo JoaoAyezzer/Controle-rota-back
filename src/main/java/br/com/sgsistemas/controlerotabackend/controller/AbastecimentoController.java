@@ -1,8 +1,11 @@
 package br.com.sgsistemas.controlerotabackend.controller;
 import br.com.sgsistemas.controlerotabackend.dto.AbastecimentoDTO;
 import br.com.sgsistemas.controlerotabackend.dto.AbastecimentoNewDTO;
+import br.com.sgsistemas.controlerotabackend.dto.VisitaReadDTO;
 import br.com.sgsistemas.controlerotabackend.models.Abastecimento;
+import br.com.sgsistemas.controlerotabackend.models.Visita;
 import br.com.sgsistemas.controlerotabackend.services.AbastecimentoService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +36,16 @@ public class AbastecimentoController {
     public ResponseEntity<AbastecimentoDTO> getTecnicoById(@PathVariable Long id){
         AbastecimentoDTO abastecimentoDTO = new AbastecimentoDTO(abastecimentoService.getById(id));
         return ResponseEntity.ok().body(abastecimentoDTO);
+    }
+    @GetMapping(value = "/page")
+    public ResponseEntity<Page<AbastecimentoDTO>> findPage(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
+            @RequestParam(value = "orderBy", defaultValue = "id")  String orderBy,
+            @RequestParam(value = "direction", defaultValue = "ASC")  String direction){
+        Page<Abastecimento> abastecimentos = abastecimentoService.findPage(page, lines, orderBy, direction);
+        Page<AbastecimentoDTO> abastecimentoDTOS = abastecimentos.map(abastecimento -> new AbastecimentoDTO(abastecimento));
+        return ResponseEntity.ok().body(abastecimentoDTOS);
     }
     @PostMapping
     public ResponseEntity<Void> insert(@RequestBody AbastecimentoNewDTO abastecimentoNewDTO){

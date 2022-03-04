@@ -1,10 +1,13 @@
 package br.com.sgsistemas.controlerotabackend.controller;
 
+import br.com.sgsistemas.controlerotabackend.dto.AbastecimentoDTO;
 import br.com.sgsistemas.controlerotabackend.dto.ClienteDTO;
 import br.com.sgsistemas.controlerotabackend.dto.ClienteDetailDTO;
 import br.com.sgsistemas.controlerotabackend.dto.ClienteNewDTO;
+import br.com.sgsistemas.controlerotabackend.models.Abastecimento;
 import br.com.sgsistemas.controlerotabackend.models.Cliente;
 import br.com.sgsistemas.controlerotabackend.services.ClienteService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +39,16 @@ public class ClienteController {
     public ResponseEntity<ClienteDetailDTO> getClienteById(@PathVariable Long id){
         ClienteDetailDTO clienteDetailDTO = new ClienteDetailDTO(clienteService.getById(id));
         return ResponseEntity.ok().body(clienteDetailDTO);
+    }
+    @GetMapping(value = "/page")
+    public ResponseEntity<Page<ClienteDTO>> findPage(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
+            @RequestParam(value = "orderBy", defaultValue = "id")  String orderBy,
+            @RequestParam(value = "direction", defaultValue = "ASC")  String direction){
+        Page<Cliente> clientes = clienteService.findPage(page, lines, orderBy, direction);
+        Page<ClienteDTO> clienteDTOS = clientes.map(cliente -> new ClienteDTO(cliente));
+        return ResponseEntity.ok().body(clienteDTOS);
     }
     @PostMapping
     public ResponseEntity<Void> insert(@RequestBody ClienteNewDTO clienteNewDTO){

@@ -1,10 +1,13 @@
 package br.com.sgsistemas.controlerotabackend.controller;
 
+import br.com.sgsistemas.controlerotabackend.dto.LimpezaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.TecnicoDTO;
 import br.com.sgsistemas.controlerotabackend.dto.TecnicoDetailDTO;
 import br.com.sgsistemas.controlerotabackend.dto.TecnicoNewDTO;
+import br.com.sgsistemas.controlerotabackend.models.Limpeza;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.services.TecnicoService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +42,18 @@ public class TecnicoController {
     public ResponseEntity<TecnicoDetailDTO> getTecnicoById(@PathVariable Long id){
         TecnicoDetailDTO tecnicoDetailDTO = new TecnicoDetailDTO(tecnicoService.getById(id));
         return ResponseEntity.ok().body(tecnicoDetailDTO);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping(value = "/page")
+    public ResponseEntity<Page<TecnicoDTO>> findPage(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
+            @RequestParam(value = "orderBy", defaultValue = "id")  String orderBy,
+            @RequestParam(value = "direction", defaultValue = "DESC")  String direction){
+        Page<Tecnico> tecnicos = tecnicoService.findPage(page, lines, orderBy, direction);
+        Page<TecnicoDTO> tecnicoDTOS = tecnicos.map(tecnico -> new TecnicoDTO(tecnico));
+        return ResponseEntity.ok().body(tecnicoDTOS);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")

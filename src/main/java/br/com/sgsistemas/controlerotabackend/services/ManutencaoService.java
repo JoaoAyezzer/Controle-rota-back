@@ -10,6 +10,9 @@ import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityEx
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -35,7 +38,7 @@ public class ManutencaoService {
         UserSpringSecurity user = UserService.authenticated();
         if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
             return manutencaoRepository.findAll().stream()
-                    .filter( visita -> visita.getSolicitante().getId().equals(user.getId()))
+                    .filter( manutencao -> manutencao.getSolicitante().getId().equals(user.getId()))
                     .collect(Collectors.toList());
         }
         return manutencaoRepository.findAll();
@@ -74,4 +77,8 @@ public class ManutencaoService {
         return new Manutencao(manutencaoNewDTO.getDescricao(),data, solicitane, veiculo.getKilometragem(), veiculo, manutencaoNewDTO.getValor());
     }
 
+    public Page<Manutencao> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        return manutencaoRepository.findAll(pageRequest);
+    }
 }

@@ -10,6 +10,9 @@ import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityEx
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -72,5 +75,10 @@ public class LimpezaService {
         Tecnico solicitane = tecnicoService.getById(limpezaNewDTO.getSolicitante_id());
         Veiculo veiculo = veiculoService.getById(limpezaNewDTO.getVeiculo_id());
         return new Limpeza(solicitane, data, veiculo);
+    }
+
+    public Page<Limpeza> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        return limpezaRepository.findAll(pageRequest);
     }
 }

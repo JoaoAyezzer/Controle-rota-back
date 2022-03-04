@@ -1,9 +1,12 @@
 package br.com.sgsistemas.controlerotabackend.controller;
 
+import br.com.sgsistemas.controlerotabackend.dto.DespesaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.LimpezaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.LimpezaNewDTO;
+import br.com.sgsistemas.controlerotabackend.models.Despesa;
 import br.com.sgsistemas.controlerotabackend.models.Limpeza;
 import br.com.sgsistemas.controlerotabackend.services.LimpezaService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +33,16 @@ public class LimpezaController {
                 .stream()
                 .map(LimpezaDTO::new)
                 .collect( Collectors.toList() );
+        return ResponseEntity.ok().body(limpezaDTOS);
+    }
+    @GetMapping(value = "/page")
+    public ResponseEntity<Page<LimpezaDTO>> findPage(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "lines", defaultValue = "24")  Integer lines,
+            @RequestParam(value = "orderBy", defaultValue = "id")  String orderBy,
+            @RequestParam(value = "direction", defaultValue = "DESC")  String direction){
+        Page<Limpeza> limpezas = limpezaService.findPage(page, lines, orderBy, direction);
+        Page<LimpezaDTO> limpezaDTOS = limpezas.map(limpeza -> new LimpezaDTO(limpeza));
         return ResponseEntity.ok().body(limpezaDTOS);
     }
     @GetMapping(value = "/{id}")

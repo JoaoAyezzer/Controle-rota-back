@@ -7,14 +7,13 @@ import br.com.sgsistemas.controlerotabackend.models.*;
 import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.VisitaRepository;
 import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
-import br.com.sgsistemas.controlerotabackend.services.exceptions.AuthorizationException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -119,7 +118,7 @@ public class VisitaService {
     }
     //Busca Paginada de Visitas
     public Page<Visita> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
-        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
         return visitaRepository.findAll(pageRequest);
     }
 
