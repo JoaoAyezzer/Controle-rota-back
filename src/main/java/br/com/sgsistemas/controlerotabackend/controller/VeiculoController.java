@@ -4,7 +4,9 @@ import br.com.sgsistemas.controlerotabackend.dto.VeiculoDTO;
 import br.com.sgsistemas.controlerotabackend.dto.VeiculoDetailDTO;
 import br.com.sgsistemas.controlerotabackend.models.Veiculo;
 import br.com.sgsistemas.controlerotabackend.services.VeiculoService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/veiculos")
+@RequestMapping(value = "/veiculos", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class VeiculoController {
 
     private final VeiculoService veiculoService;
@@ -30,12 +32,14 @@ public class VeiculoController {
                 .collect( Collectors.toList() );
         return ResponseEntity.ok().body(veiculoDTOS);
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping(value = "/{id}")
     public ResponseEntity<VeiculoDetailDTO> getVeiculoById(@PathVariable Long id){
         VeiculoDetailDTO veiculoDetailDTO = new VeiculoDetailDTO(veiculoService.getById(id));
         return ResponseEntity.ok().body(veiculoDetailDTO);
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Void> insert(@Valid @RequestBody VeiculoDTO veiculoDTO){
         Veiculo veiculo = veiculoService.fromDTO(veiculoDTO);
@@ -46,6 +50,7 @@ public class VeiculoController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Void> updateVeiculo(@RequestBody Veiculo veiculo, @PathVariable Long id){
         veiculo.setId(id);
@@ -53,6 +58,7 @@ public class VeiculoController {
         return ResponseEntity.noContent().build();
 
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/{id}" )
     public  ResponseEntity<Void> deleteVeiculo(@PathVariable Long id){
         veiculoService.deleteVeiculo(id);

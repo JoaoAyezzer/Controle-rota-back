@@ -5,7 +5,9 @@ import br.com.sgsistemas.controlerotabackend.dto.ClienteDetailDTO;
 import br.com.sgsistemas.controlerotabackend.dto.ClienteNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Cliente;
 import br.com.sgsistemas.controlerotabackend.services.ClienteService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "clientes")
+@RequestMapping(value = "clientes", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class ClienteController {
 
     private final ClienteService clienteService;
@@ -22,7 +24,6 @@ public class ClienteController {
     public ClienteController(ClienteService clienteService) {
         this.clienteService = clienteService;
     }
-
     @GetMapping
     public ResponseEntity<List<ClienteDTO>> getAllClientes(){
         List<ClienteDTO> clienteDTOS = clienteService.getAll()
@@ -46,6 +47,7 @@ public class ClienteController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Void> updateManutencao(@RequestBody ClienteNewDTO clienteNewDTO, @PathVariable Long id){
         Cliente cliente = clienteService.fromDTO(clienteNewDTO);
@@ -53,6 +55,8 @@ public class ClienteController {
         cliente = clienteService.updateCliente(cliente);
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/{id}" )
     public  ResponseEntity<Void> deleteManutencao(@PathVariable Long id){
         clienteService.deleteCliente(id);

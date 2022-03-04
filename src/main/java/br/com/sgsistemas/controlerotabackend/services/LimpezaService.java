@@ -3,7 +3,9 @@ import br.com.sgsistemas.controlerotabackend.dto.LimpezaNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Limpeza;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.models.Veiculo;
+import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.LimpezaRepository;
+import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class LimpezaService {
 
@@ -28,6 +32,12 @@ public class LimpezaService {
 
     //Listar todos as Limpezas
     public List<Limpeza> getAll(){
+        UserSpringSecurity user = UserService.authenticated();
+        if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
+            return limpezaRepository.findAll().stream()
+                    .filter( visita -> visita.getSolicitante().getId().equals(user.getId()))
+                    .collect(Collectors.toList());
+        }
         return limpezaRepository.findAll();
     }
 

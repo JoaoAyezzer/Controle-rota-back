@@ -4,7 +4,9 @@ import br.com.sgsistemas.controlerotabackend.dto.ClienteNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Cliente;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.models.TiCliente;
+import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.ClienteRepository;
+import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class ClienteService {
 
@@ -31,6 +35,12 @@ public class ClienteService {
 
     //Busca todos os Clientes
     public List<Cliente> getAll(){
+        UserSpringSecurity user = UserService.authenticated();
+        if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
+            return clienteRepository.findAll().stream()
+                    .filter( visita -> visita.getTecnicoResponsavel().getId().equals(user.getId()))
+                    .collect(Collectors.toList());
+        }
         return clienteRepository.findAll();
     }
 

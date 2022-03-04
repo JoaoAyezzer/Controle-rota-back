@@ -3,7 +3,9 @@ import br.com.sgsistemas.controlerotabackend.dto.ManutencaoDTO;
 import br.com.sgsistemas.controlerotabackend.dto.ManutencaoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Manutencao;
 import br.com.sgsistemas.controlerotabackend.services.ManutencaoService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "manutencoes")
+@RequestMapping(value = "manutencoes", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class ManutencaoController {
 
     private final ManutencaoService manutencaoService;
@@ -43,6 +45,7 @@ public class ManutencaoController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Void> updateManutencao(@RequestBody ManutencaoNewDTO manutencaoNewDTO, @PathVariable Long id){
         Manutencao manutencao = manutencaoService.fromDTO(manutencaoNewDTO);
@@ -50,6 +53,7 @@ public class ManutencaoController {
         manutencao = manutencaoService.updateManutencao(manutencao);
         return ResponseEntity.noContent().build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/{id}" )
     public  ResponseEntity<Void> deleteManutencao(@PathVariable Long id){
         manutencaoService.deleteManutencao(id);

@@ -4,7 +4,9 @@ import br.com.sgsistemas.controlerotabackend.dto.LimpezaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.LimpezaNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Limpeza;
 import br.com.sgsistemas.controlerotabackend.services.LimpezaService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -13,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "limpezas")
+@RequestMapping(value = "limpezas", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class LimpezaController {
 
     private final LimpezaService limpezaService;
@@ -45,6 +47,7 @@ public class LimpezaController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Void> updateLimpeza(@RequestBody LimpezaNewDTO limpezaNewDTO, @PathVariable Long id){
         Limpeza limpeza = limpezaService.fromDTO(limpezaNewDTO);
@@ -52,6 +55,7 @@ public class LimpezaController {
         limpeza = limpezaService.updateLimpeza(limpeza);
         return ResponseEntity.noContent().build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/{id}" )
     public  ResponseEntity<Void> deleteLimpeza(@PathVariable Long id){
         limpezaService.deleteLimpeza(id);

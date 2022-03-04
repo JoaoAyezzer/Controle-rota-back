@@ -1,7 +1,10 @@
 package br.com.sgsistemas.controlerotabackend.services;
 import br.com.sgsistemas.controlerotabackend.dto.TecnicoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
+import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.TecnicoRepository;
+import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
+import br.com.sgsistemas.controlerotabackend.services.exceptions.AuthorizationException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +26,14 @@ public class TecnicoService {
     @Autowired
     private TecnicoRepository tecnicoRepository;
 
-    public List<Tecnico> getAll(){
-        return tecnicoRepository.findAll();
+    public List<Tecnico> getAll(){return tecnicoRepository.findAll();
     }
 
     public Tecnico getById(Long id){
+        UserSpringSecurity user = UserService.authenticated();
+        if (user == null || !user.hasRole(TipoTecnico.GERENTE) && !user.hasRole(TipoTecnico.SUPERVISOR) && !id.equals(user.getId())){
+            throw  new AuthorizationException("Voce esta tentando acessar um tecnico o qual voce nao tem permissão");
+        }
         Optional<Tecnico> tecnico = tecnicoRepository.findById(id);
         return tecnico.orElseThrow(()-> new ObjectNotfoundException(
                 "Objeto nao encontrado! Id: " + id + ", Tipo: " + Tecnico.class.getName()

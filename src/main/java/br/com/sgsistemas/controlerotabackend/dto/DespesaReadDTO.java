@@ -8,32 +8,33 @@ import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
 
-public class DespesaDTO implements Serializable {
+public class DespesaReadDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
     private Long id;
-    @NotEmpty(message = "preenchimento do tiṕo de despesa obrigatorio")
     private Integer tipoDespesa;
-    @NotEmpty(message = "preenchimento do Id do tecnico Obrigatorio")
     private Long tecnicoID;
-    @NotEmpty(message = "preenchimento do Id da visita Obrigatorio")
+    private String nomeTecnico;
     private Long visitaID;
+    private String clienteVisita;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm", timezone = "America/Sao_Paulo")
     private Date data;
-    @NotEmpty(message = "preenchimento do valor da despesa Obrigatorio")
     private Double valor;
 
-    public DespesaDTO() {
+    public DespesaReadDTO() {
     }
 
-    public DespesaDTO(Despesa despesa) {
+    public DespesaReadDTO(Despesa despesa) {
         this.id = despesa.getId();
         this.tipoDespesa = despesa.getTipoDespesa().getCod();
         this.tecnicoID = despesa.getTecnico().getId();
+        this.nomeTecnico = despesa.getTecnico().getNome();
         this.visitaID = despesa.getVisita().getId();
+        this.clienteVisita = despesa.getVisita().getCliente().getNomeFantasia();
         this.data = despesa.getData();
         this.valor = despesa.getValor();
+
     }
 
     public Long getId() {
@@ -48,9 +49,24 @@ public class DespesaDTO implements Serializable {
         return TipoDespesa.toEnum(tipoDespesa);
     }
 
+    public String getNomeTecnico() {
+        return nomeTecnico;
+    }
+
+    public void setNomeTecnico(String nomeTecnico) {
+        this.nomeTecnico = nomeTecnico;
+    }
+
+    public String getClienteVisita() {
+        return clienteVisita;
+    }
+
+    public void setClienteVisita(String clienteVisita) {
+        this.clienteVisita = clienteVisita;
+    }
 
 
-        public void setTipoDespesa(TipoDespesa tipoDespesa) {
+    public void setTipoDespesa(TipoDespesa tipoDespesa) {
         this.tipoDespesa = tipoDespesa.getCod();
     }
 

@@ -4,7 +4,10 @@ import br.com.sgsistemas.controlerotabackend.dto.FinalizarVisitaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.VisitaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.VisitaNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.*;
+import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.VisitaRepository;
+import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
+import br.com.sgsistemas.controlerotabackend.services.exceptions.AuthorizationException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class VisitaService {
@@ -37,6 +41,12 @@ public class VisitaService {
 
     //Listar todos as Visitas
     public List<Visita> getAll(){
+        UserSpringSecurity user = UserService.authenticated();
+        if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
+            return visitaRepository.findAll().stream()
+                    .filter( visita -> visita.getTecnico().getId().equals(user.getId()))
+                    .collect(Collectors.toList());
+        }
         return visitaRepository.findAll();
     }
 
@@ -53,11 +63,11 @@ public class VisitaService {
         Veiculo veiculo = veiculoService.getById(visita.getVeiculo().getId());
         for (Visita v: veiculo.getVisitas()) {
             if (v.getDataFinal() == null || v.getKilometragemFinal() == null){
-                throw new DataIntegrityException(" " +
+                throw new DataIntegrityException(
                         "O veiculo " + veiculo.getModelo() +
                         " placa: " + veiculo.getPlaca() +
-                        " esta bloqueado pois nao finalizou a visita para o cliente: " +
-                        v.getCliente().getNomeFantasia());
+                        " esta bloqueado pois nao finalizou a visita " +
+                        "ID: " + v.getId() + " para o cliente: " + v.getCliente().getNomeFantasia());
             }
         }
         return visitaRepository.save(visita);

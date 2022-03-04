@@ -5,7 +5,9 @@ import br.com.sgsistemas.controlerotabackend.dto.TecnicoDetailDTO;
 import br.com.sgsistemas.controlerotabackend.dto.TecnicoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.services.TecnicoService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/tecnicos")
+@RequestMapping(value = "/tecnicos", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class TecnicoController {
 
     private final TecnicoService tecnicoService;
@@ -23,6 +25,7 @@ public class TecnicoController {
         this.tecnicoService = tecnicoService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping
     public ResponseEntity< List<TecnicoDTO> > getAllTecnicos(){
         List<TecnicoDTO> tecnicoDTOS = tecnicoService.getAll()
@@ -37,6 +40,8 @@ public class TecnicoController {
         TecnicoDetailDTO tecnicoDetailDTO = new TecnicoDetailDTO(tecnicoService.getById(id));
         return ResponseEntity.ok().body(tecnicoDetailDTO);
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Void> insert(@Valid @RequestBody TecnicoNewDTO tecnicoNewDTO){
         Tecnico tecnico = tecnicoService.fromDTO(tecnicoNewDTO);
@@ -47,6 +52,7 @@ public class TecnicoController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Void> updateTecnico(@RequestBody TecnicoNewDTO tecnicoNewDTO, @PathVariable Long id){
         Tecnico tecnico = tecnicoService.fromDTO(tecnicoNewDTO);
@@ -55,6 +61,7 @@ public class TecnicoController {
         return ResponseEntity.noContent().build();
 
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/{id}" )
     public  ResponseEntity<Void> deleteTecnico(@PathVariable Long id){
         tecnicoService.deleteTecnico(id);

@@ -67,4 +67,8 @@ public class UserSpringSecurity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public boolean hasRole(TipoTecnico tipoTecnico) {
+        return getAuthorities().contains(new SimpleGrantedAuthority(tipoTecnico.getDescricao()));
+    }
 }

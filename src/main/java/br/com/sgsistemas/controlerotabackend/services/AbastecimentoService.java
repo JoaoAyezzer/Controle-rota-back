@@ -4,7 +4,9 @@ import br.com.sgsistemas.controlerotabackend.dto.AbastecimentoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Abastecimento;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.models.Veiculo;
+import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.AbastecimentoRepository;
+import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AbastecimentoService {
@@ -34,6 +37,13 @@ public class AbastecimentoService {
 
     //Listar todos os Abastecimentos
     public List<Abastecimento> getAll(){
+        UserSpringSecurity user = UserService.authenticated();
+
+        if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
+            return abastecimentoRepository.findAll().stream()
+                    .filter( abastecimento -> abastecimento.getTecnico().getId().equals(user.getId()))
+                    .collect(Collectors.toList());
+        }
         return abastecimentoRepository.findAll();
     }
 

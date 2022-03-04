@@ -3,7 +3,9 @@ import br.com.sgsistemas.controlerotabackend.dto.AbastecimentoDTO;
 import br.com.sgsistemas.controlerotabackend.dto.AbastecimentoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Abastecimento;
 import br.com.sgsistemas.controlerotabackend.services.AbastecimentoService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "abastecimentos")
+@RequestMapping(value = "abastecimentos", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class AbastecimentoController {
 
     private final AbastecimentoService abastecimentoService;
@@ -19,7 +21,6 @@ public class AbastecimentoController {
     public AbastecimentoController(AbastecimentoService abastecimentoService) {
         this.abastecimentoService = abastecimentoService;
     }
-
     @GetMapping
     public ResponseEntity<List<AbastecimentoDTO>> getAllAbastecimentos(){
         List<AbastecimentoDTO> abastecimentoDTOS = abastecimentoService.getAll()
@@ -43,6 +44,7 @@ public class AbastecimentoController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<Void> updateManutencao(@RequestBody AbastecimentoNewDTO abastecimentoNewDTO, @PathVariable Long id){
         Abastecimento abastecimento = abastecimentoService.fromDTO(abastecimentoNewDTO);
@@ -50,6 +52,8 @@ public class AbastecimentoController {
         abastecimento = abastecimentoService.updateAbastecimento(abastecimento);
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/{id}" )
     public  ResponseEntity<Void> deleteManutencao(@PathVariable Long id){
         abastecimentoService.deleteAbastecimento(id);
