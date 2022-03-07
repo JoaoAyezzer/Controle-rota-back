@@ -6,6 +6,7 @@ import br.com.sgsistemas.controlerotabackend.models.Veiculo;
 import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.LimpezaRepository;
 import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
+import br.com.sgsistemas.controlerotabackend.services.exceptions.AuthorizationException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class LimpezaService {
     //Listar todos as Limpezas
     public List<Limpeza> getAll(){
         UserSpringSecurity user = UserService.authenticated();
-        if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
+        if (!user.hasRole(TipoTecnico.GERENTE) && !user.hasRole(TipoTecnico.SUPERVISOR)){
             return limpezaRepository.findAll().stream()
                     .filter( visita -> visita.getSolicitante().getId().equals(user.getId()))
                     .collect(Collectors.toList());
@@ -78,7 +79,14 @@ public class LimpezaService {
     }
 
     public Page<Limpeza> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        UserSpringSecurity user = UserService.authenticated();
         PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        if (user == null){
+            throw  new AuthorizationException("Acesso negado! Usuario não autenticado");
+        }else if (!user.hasRole(TipoTecnico.GERENTE) && !user.hasRole(TipoTecnico.SUPERVISOR)){
+            Tecnico tecnico = tecnicoService.getById(user.getId());
+            return limpezaRepository.findBySolicitante(tecnico, pageRequest);
+        }
         return limpezaRepository.findAll(pageRequest);
     }
 }

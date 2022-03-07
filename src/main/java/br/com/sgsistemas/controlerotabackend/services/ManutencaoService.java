@@ -6,6 +6,7 @@ import br.com.sgsistemas.controlerotabackend.models.Veiculo;
 import br.com.sgsistemas.controlerotabackend.models.enums.TipoTecnico;
 import br.com.sgsistemas.controlerotabackend.repositories.ManutencaoRepository;
 import br.com.sgsistemas.controlerotabackend.security.UserSpringSecurity;
+import br.com.sgsistemas.controlerotabackend.services.exceptions.AuthorizationException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +79,16 @@ public class ManutencaoService {
     }
 
     public Page<Manutencao> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        UserSpringSecurity user = UserService.authenticated();
         PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        if (user == null){
+            throw  new AuthorizationException("Acesso negado! Usuario não autenticado");
+        }
+        if (!user.hasRole(TipoTecnico.GERENTE) || !user.hasRole(TipoTecnico.SUPERVISOR)){
+            Tecnico tecnico = tecnicoService.getById(user.getId());
+            return manutencaoRepository.findBySolicitante(tecnico, pageRequest);
+        }
+
         return manutencaoRepository.findAll(pageRequest);
     }
 }

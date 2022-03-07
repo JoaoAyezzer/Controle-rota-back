@@ -1,9 +1,7 @@
 package br.com.sgsistemas.controlerotabackend.controller;
 
-import br.com.sgsistemas.controlerotabackend.dto.DespesaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.LimpezaDTO;
 import br.com.sgsistemas.controlerotabackend.dto.LimpezaNewDTO;
-import br.com.sgsistemas.controlerotabackend.models.Despesa;
 import br.com.sgsistemas.controlerotabackend.models.Limpeza;
 import br.com.sgsistemas.controlerotabackend.services.LimpezaService;
 import org.springframework.data.domain.Page;
