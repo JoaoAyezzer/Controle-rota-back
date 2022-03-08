@@ -22,6 +22,7 @@ public class DespesaReadDTO implements Serializable {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm", timezone = "America/Sao_Paulo")
     private Date data;
     private Double valor;
+    private String urlComprovante;
 
     public DespesaReadDTO() {
     }
@@ -35,6 +36,7 @@ public class DespesaReadDTO implements Serializable {
         this.clienteVisita = despesa.getVisita().getCliente().getNomeFantasia();
         this.data = despesa.getData();
         this.valor = despesa.getValor();
+        this.urlComprovante = despesa.getImageUrl();
 
     }
 
@@ -85,6 +87,14 @@ public class DespesaReadDTO implements Serializable {
 
     public void setVisitaID(Long visitaID) {
         this.visitaID = visitaID;
+    }
+
+    public String getUrlComprovante() {
+        return urlComprovante;
+    }
+
+    public void setUrlImage(String urlImage) {
+        this.urlComprovante = urlImage;
     }
 
     public Date getData() {

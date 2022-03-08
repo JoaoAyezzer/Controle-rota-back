@@ -9,6 +9,7 @@ import br.com.sgsistemas.controlerotabackend.services.exceptions.AuthorizationEx
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,15 +35,19 @@ public class DespesaService {
     @Autowired
     private S3Service s3Service;
 
-    private final TecnicoService tecnicoService;
+    @Autowired
+    private ImageService imageService;
 
-    private final VisitaService visitaService;
+    @Autowired
+    private TecnicoService tecnicoService;
+
+    @Autowired
+    private VisitaService visitaService;
+
+    @Value("${img.prefix.despesa}")
+    private String prefix;
 
 
-    public DespesaService(TecnicoService tecnicoService, VisitaService visitaService) {
-        this.tecnicoService = tecnicoService;
-        this.visitaService = visitaService;
-    }
 
     //Listar todos as Despesas
     public List<Despesa> getAll(){
@@ -107,7 +113,9 @@ public class DespesaService {
     }
 
     public URI uploadTicketPicture(MultipartFile multipartFile, Long id){
-        URI uri = s3Service.uploadFile(multipartFile);
+        BufferedImage jpgImage = imageService.getJpjImageFromFile(multipartFile);
+        String fileName = prefix + id + ".jpg";
+        URI uri = s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");
         Despesa despesa = getById(id);
         despesa.setImageUrl(uri.toString());
         despesaRepository.save(despesa);
