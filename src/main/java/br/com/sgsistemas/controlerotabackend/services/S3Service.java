@@ -1,6 +1,7 @@
 package br.com.sgsistemas.controlerotabackend.services;
 
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
+import br.com.sgsistemas.controlerotabackend.services.exceptions.FileException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class S3Service {
             String contentType = multipartFile.getContentType();
             return uploadFile(inputStream, fileName, contentType);
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao capturar o input stream");
+            throw new FileException("Erro ao capturar o input stream");
         }
 
     }
@@ -43,7 +44,7 @@ public class S3Service {
             s3client.putObject(bucketName, fileName, inputStream, metadata);
             return s3client.getUrl(bucketName, fileName).toURI();
         } catch (URISyntaxException e) {
-            throw new DataIntegrityException("Erro ao converter URL para URI");
+            throw new FileException("Erro ao converter URL para URI");
         }
     }
 }
