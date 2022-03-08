@@ -61,9 +61,9 @@ public class DespesaController {
                 .toUri();
         return ResponseEntity.created(uri).build();
     }
-    @PostMapping(value = "/picture")
-    public ResponseEntity<Void> uploadTicketPicture(@RequestParam(name = "file") MultipartFile multipartFile){
-        URI uri = despesaService.uploadTicketPicture(multipartFile);
+    @PostMapping(value = "/{id}/picture")
+    public ResponseEntity<Void> uploadTicketPicture(@PathVariable Long id, @RequestParam(name = "file") MultipartFile multipartFile){
+        URI uri = despesaService.uploadTicketPicture(multipartFile, id);
         return ResponseEntity.created(uri).build();
     }
     @PreAuthorize("hasAnyRole('ADMIN')")

@@ -6,8 +6,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
+
 @Entity(name = "DESPESA")
 public class Despesa implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -19,6 +22,8 @@ public class Despesa implements Serializable {
     @Column(nullable = false)
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm", timezone = "America/Sao_Paulo")
     private Date data;
+    @Column(name = "URL_COMPRVANTE")
+    private String imageUrl;
     @Column(nullable = false)
     private Double valor;
     @JsonManagedReference
@@ -86,6 +91,14 @@ public class Despesa implements Serializable {
 
     public void setVisita(Visita visita) {
         this.visita = visita;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     @Override

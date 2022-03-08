@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -105,8 +106,12 @@ public class DespesaService {
         return despesaRepository.findAll(pageRequest);
     }
 
-    public URI uploadTicketPicture(MultipartFile multipartFile){
-        return s3Service.uploadFile(multipartFile);
+    public URI uploadTicketPicture(MultipartFile multipartFile, Long id){
+        URI uri = s3Service.uploadFile(multipartFile);
+        Despesa despesa = getById(id);
+        despesa.setImageUrl(uri.toString());
+        despesaRepository.save(despesa);
+        return uri;
     }
 
 }
