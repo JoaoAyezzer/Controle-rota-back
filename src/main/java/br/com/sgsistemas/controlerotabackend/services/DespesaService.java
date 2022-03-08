@@ -47,6 +47,9 @@ public class DespesaService {
     @Value("${img.prefix.despesa}")
     private String prefix;
 
+    @Value("${img.desp.size}")
+    private Integer size;
+
 
 
     //Listar todos as Despesas
@@ -114,6 +117,7 @@ public class DespesaService {
 
     public URI uploadTicketPicture(MultipartFile multipartFile, Long id){
         BufferedImage jpgImage = imageService.getJpjImageFromFile(multipartFile);
+        jpgImage = imageService.resize(jpgImage, size);
         String fileName = prefix + id + ".jpg";
         URI uri = s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");
         Despesa despesa = getById(id);
