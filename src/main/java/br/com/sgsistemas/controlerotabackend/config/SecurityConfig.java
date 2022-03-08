@@ -6,6 +6,7 @@ import br.com.sgsistemas.controlerotabackend.security.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,17 +26,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JWTUtil jwtUtil;
 
-    private static final String[] PUBLIC_MATCHERS = {
-            "/limpezas/**",
-            "/manutencoes/**",
-            "/abastecimentos/**"
+    private static final String[] PUBLIC_MATCHERS_GET = {
+            "/veiculos/**"
+    };
+    private static final String[] PUBLIC_MATCHERS_POST = {
+            "/auth/forgot/**"
     };
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable();
         http.authorizeRequests()
-                .antMatchers(PUBLIC_MATCHERS).permitAll()
+                .antMatchers( HttpMethod.GET, PUBLIC_MATCHERS_GET).permitAll()
+                .antMatchers( HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll()
                 .anyRequest().authenticated();
         http.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtUtil));
         http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));
