@@ -15,7 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +29,13 @@ public class DespesaService {
     @Autowired
     private DespesaRepository despesaRepository;
 
+    @Autowired
+    private S3Service s3Service;
+
     private final TecnicoService tecnicoService;
 
     private final VisitaService visitaService;
+
 
     public DespesaService(TecnicoService tecnicoService, VisitaService visitaService) {
         this.tecnicoService = tecnicoService;
@@ -98,4 +104,9 @@ public class DespesaService {
         }
         return despesaRepository.findAll(pageRequest);
     }
+
+    public URI uploadTicketPicture(MultipartFile multipartFile){
+        return s3Service.uploadFile(multipartFile);
+    }
+
 }

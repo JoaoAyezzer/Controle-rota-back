@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "despesas", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "despesas")
 public class DespesaController {
 
     private final DespesaService despesaService;
@@ -58,6 +59,11 @@ public class DespesaController {
                 .path("/{id}")
                 .buildAndExpand(despesa.getId())
                 .toUri();
+        return ResponseEntity.created(uri).build();
+    }
+    @PostMapping(value = "/picture")
+    public ResponseEntity<Void> uploadTicketPicture(@RequestParam(name = "file") MultipartFile multipartFile){
+        URI uri = despesaService.uploadTicketPicture(multipartFile);
         return ResponseEntity.created(uri).build();
     }
     @PreAuthorize("hasAnyRole('ADMIN')")
