@@ -1,15 +1,14 @@
 package br.com.sgsistemas.controlerotabackend.controller;
 
 import br.com.sgsistemas.controlerotabackend.dto.TecnicoDTO;
-import br.com.sgsistemas.controlerotabackend.dto.TecnicoDetailDTO;
 import br.com.sgsistemas.controlerotabackend.dto.TecnicoNewDTO;
 import br.com.sgsistemas.controlerotabackend.models.Tecnico;
 import br.com.sgsistemas.controlerotabackend.services.TecnicoService;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -18,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/tecnicos", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/tecnicos")
 public class TecnicoController {
 
     private final TecnicoService tecnicoService;
@@ -36,9 +35,9 @@ public class TecnicoController {
         return ResponseEntity.ok().body(tecnicoDTOS);
     }
     @GetMapping(value = "/{id}")
-    public ResponseEntity<TecnicoDetailDTO> getTecnicoById(@PathVariable Long id){
-        TecnicoDetailDTO tecnicoDetailDTO = new TecnicoDetailDTO(tecnicoService.getById(id));
-        return ResponseEntity.ok().body(tecnicoDetailDTO);
+    public ResponseEntity<TecnicoDTO> getTecnicoById(@PathVariable Long id){
+        TecnicoDTO tecnicoDTO = new TecnicoDTO(tecnicoService.getById(id));
+        return ResponseEntity.ok().body(tecnicoDTO);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -52,6 +51,11 @@ public class TecnicoController {
         Page<TecnicoDTO> tecnicoDTOS = tecnicos.map(tecnico -> new TecnicoDTO(tecnico));
         return ResponseEntity.ok().body(tecnicoDTOS);
     }
+    @GetMapping(value = "/email")
+    public ResponseEntity<TecnicoDTO> find(@RequestParam(value="value") String email) {
+        TecnicoDTO tecnicoDTO = new TecnicoDTO(tecnicoService.findByEmail(email));
+        return ResponseEntity.ok().body(tecnicoDTO);
+    }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
@@ -62,6 +66,11 @@ public class TecnicoController {
                 .path("/{id}")
                 .buildAndExpand(tecnico.getId())
                 .toUri();
+        return ResponseEntity.created(uri).build();
+    }
+    @PostMapping(value = "/{id}/picture")
+    public ResponseEntity<Void> uploadTicketPicture(@PathVariable Long id, @RequestParam(name = "file") MultipartFile multipartFile){
+        URI uri = tecnicoService.uploadTicketPicture(multipartFile, id);
         return ResponseEntity.created(uri).build();
     }
     @PreAuthorize("hasAnyRole('ADMIN')")

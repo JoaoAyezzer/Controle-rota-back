@@ -8,14 +8,18 @@ import br.com.sgsistemas.controlerotabackend.services.exceptions.AuthorizationEx
 import br.com.sgsistemas.controlerotabackend.services.exceptions.DataIntegrityException;
 import br.com.sgsistemas.controlerotabackend.services.exceptions.ObjectNotfoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +29,16 @@ public class TecnicoService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-
     @Autowired
     private TecnicoRepository tecnicoRepository;
+    @Autowired
+    private ImageService imageService;
+    @Autowired
+    private S3Service s3Service;
+    @Value("${img.prefix.tecnico}")
+    private String prefix;
+    @Value("${img.tec.size}")
+    private Integer size;
 
     public List<Tecnico> getAll(){return tecnicoRepository.findAll();
     }
@@ -53,8 +64,7 @@ public class TecnicoService {
         }
 
     }
-
-    public static List<String> getNomeTecnidos(List<Tecnico> tecnicos){
+    public static List<String> getNomeTecnicos(List<Tecnico> tecnicos){
         List<String> nomeTecnicos = new ArrayList<>();
         for ( Tecnico tecnico:tecnicos ) {
             nomeTecnicos.add(tecnico.getNome());
@@ -62,13 +72,29 @@ public class TecnicoService {
         }
         return nomeTecnicos;
     }
+    @Transactional
+    public Tecnico findByEmail(String email) {
+        UserSpringSecurity user = UserService.authenticated();
+        if (user == null || !user.hasRole(TipoTecnico.GERENTE) && !user.hasRole(TipoTecnico.SUPERVISOR) && !email.equals(user.getUsername())) {
+            throw new AuthorizationException("Acesso negado");
+        }
+
+        Tecnico tecnico = tecnicoRepository.findByEmail(email);
+        if (tecnico == null) {
+            throw new ObjectNotfoundException(
+                    "Objeto não encontrado! Id: " + user.getId() + ", Tipo: " + Tecnico.class.getName());
+        }
+        return tecnico;
+    }
 
     //Update do Tecnico
+    @Transactional
     public Tecnico updateTecnico(Tecnico tecnico){
         getById(tecnico.getId());
         return tecnicoRepository.save( tecnico );
     }
     //Delete Tecnico
+    @Transactional
     public void deleteTecnico(Long id){
         getById(id);
         try {
@@ -85,9 +111,21 @@ public class TecnicoService {
         tecnico.getTelefones().add(tecnicoNewDTO.getTelefone2());
         return tecnico;
     }
-
+    @Transactional
     public Page<Tecnico> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
         PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
         return tecnicoRepository.findAll(pageRequest);
+    }
+    @Transactional
+    public URI uploadTicketPicture(MultipartFile multipartFile, Long id){
+        BufferedImage jpgImage = imageService.getJpjImageFromFile(multipartFile);
+        jpgImage = imageService.cropSquare(jpgImage);
+        jpgImage = imageService.resize(jpgImage, size);
+        String fileName = prefix + id + ".jpg";
+        URI uri = s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");
+        Tecnico tecnico = getById(id);
+        tecnico.setImageUrl(uri.toString());
+        tecnicoRepository.save(tecnico);
+        return uri;
     }
 }

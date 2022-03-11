@@ -23,9 +23,8 @@ public class Tecnico implements Serializable {
     @Column
     @JsonIgnore
     private String senha;
-//    @ElementCollection(fetch = FetchType.EAGER)
-//    @CollectionTable(name = "PERFIS_USUARIOS")
-//    private Set<Integer> perfis = new HashSet<>();
+    @Column
+    private String imageUrl;
     @Column
     private Integer tipoTecnico;
     @ElementCollection
@@ -88,13 +87,7 @@ public class Tecnico implements Serializable {
     public TipoTecnico getTipoTecnico() { return TipoTecnico.toEnum(this.tipoTecnico); }
 
     public void setTipoTecnico(TipoTecnico tipoTecnico) { this.tipoTecnico = tipoTecnico.getCod(); }
-//
-//    public Set<PerfilUsuario> getPerfis(){
-//        return perfis.stream().map(perfil -> PerfilUsuario.toEnum(perfil)).collect(Collectors.toSet());
-//    }
-//    public void addPerfil(PerfilUsuario perfilUsuario){
-//        perfis.add(perfilUsuario.getCod());
-//    }
+
     public List<String> getTelefones() {
         return telefones;
     }
@@ -117,6 +110,14 @@ public class Tecnico implements Serializable {
 
     public void setDespesas(List<Despesa> despesas) {
         this.despesa = despesas;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     @Override

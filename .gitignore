@@ -15,6 +15,8 @@ target/
 .sts4-cache
 ### Sensitive Data ###
 src/main/resources/application.properties
+src/main/resources/application-dev.properties
+
 
 ### IntelliJ IDEA ###
 .idea

@@ -15,6 +15,7 @@ public class TecnicoDTO implements Serializable {
     private String email;
     private Integer tipoTecnico;
     private List<String> telefones;
+    private String imageUrl;
 
     public TecnicoDTO() {
     }
@@ -25,6 +26,7 @@ public class TecnicoDTO implements Serializable {
         this.email = tecnico.getEmail();
         this.tipoTecnico = (tecnico.getTipoTecnico() == null) ? null : tecnico.getTipoTecnico().getCod();
         this.telefones = tecnico.getTelefones();
+        this.imageUrl = tecnico.getImageUrl();
     }
 
     public Long getId() {
@@ -63,5 +65,11 @@ public class TecnicoDTO implements Serializable {
         this.telefones = telefones;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
